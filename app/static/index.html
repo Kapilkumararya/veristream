@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VeriStream — Agentic AI Multimodal Fact Verification Engine</title>
+  <link rel="stylesheet" href="/static/style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+  <!-- Header -->
+  <header class="navbar">
+    <div class="nav-brand">
+      <div class="logo-badge">VS</div>
+      <div>
+        <h1 class="logo-title">VeriStream</h1>
+        <p class="logo-subtitle">Agentic AI Fact Verification Engine &bull; FastAPI Backend</p>
+      </div>
+    </div>
+    <div class="nav-actions">
+      <span class="badge badge-accent">-30% Audio Latency (FFmpeg)</span>
+      <span class="badge badge-outline" id="wsStatus">WS: Connecting...</span>
+      <a href="/docs" target="_blank" class="api-docs-link">FastAPI Docs &rarr;</a>
+    </div>
+  </header>
+
+  <main class="container">
+    <!-- Domain Focus Banner -->
+    <div class="banner">
+      <strong>Specialized Verification Domains:</strong> Health-Related Product Claims &bull; Historical Claims &bull; Multimodal Media Pipelines
+    </div>
+
+    <!-- Mode Tabs -->
+    <div class="tabs">
+      <button class="tab-btn active" data-tab="tab-agent">Agentic Claim Investigation</button>
+      <button class="tab-btn" data-tab="tab-media">Media Pipeline (FFmpeg + Whisper)</button>
+      <button class="tab-btn" data-tab="tab-benchmark">FFmpeg Latency Benchmark</button>
+    </div>
+
+    <!-- Tab 1: Agentic Claim Investigation -->
+    <section id="tab-agent" class="tab-pane active">
+      <div class="card">
+        <h3>Investigate Factual Claim</h3>
+        <p class="text-muted">The agent autonomously decomposes the claim, collects supporting (Pro) and refuting (Con) evidence, cross-examines sources, and outputs an explainable verdict.</p>
+
+        <!-- Presets -->
+        <div class="preset-group">
+          <span class="preset-label">Test Presets:</span>
+          <button class="preset-chip" data-claim="Colloidal silver supplements cure cancer and bacterial infections.">Colloidal Silver (Health Product)</button>
+          <button class="preset-chip" data-claim="Apple cider vinegar gummies dissolve visceral fat and cure Type 2 diabetes.">ACV Gummies (Health Product)</button>
+          <button class="preset-chip" data-claim="The Apollo 11 moon landing was staged in a studio, proven by the waving American flag.">Apollo 11 Flag (Historical)</button>
+          <button class="preset-chip" data-claim="Smallpox was declared officially eradicated worldwide in 1980 following a global vaccination campaign.">Smallpox 1980 (Historical)</button>
+          <button class="preset-chip" data-claim="The Titanic was secretly swapped with the damaged Olympic as an insurance fraud conspiracy.">Titanic Swap (Historical)</button>
+        </div>
+
+        <div class="form-group">
+          <textarea id="claimInput" rows="3" class="input-text" placeholder="Enter claim or proposition to analyze..."></textarea>
+        </div>
+
+        <div class="btn-row">
+          <button id="verifySyncBtn" class="btn btn-primary">Run Agentic Verification</button>
+          <button id="verifyAsyncBtn" class="btn btn-secondary">Dispatch Async Task (WebSocket Notify)</button>
+        </div>
+      </div>
+
+      <!-- Agent Thinking Trail -->
+      <div id="thoughtContainer" class="card hidden">
+        <div class="card-header">
+          <h4>Agent Autonomous Chain of Thought</h4>
+          <span class="spinner" id="thinkingSpinner"></span>
+        </div>
+        <div class="thought-list" id="thoughtList"></div>
+      </div>
+
+      <!-- Results Display -->
+      <div id="resultContainer" class="hidden">
+        <!-- Verdict Banner -->
+        <div class="card verdict-card" id="verdictCard">
+          <div class="verdict-header">
+            <div>
+              <span class="verdict-badge" id="verdictBadge">VERDICT</span>
+              <span class="rating-text" id="ratingText"></span>
+            </div>
+            <div class="score-display">
+              <span class="score-num" id="confidenceNum">--%</span>
+              <span class="score-sub">Confidence</span>
+            </div>
+          </div>
+          <p class="verdict-summary" id="verdictSummary"></p>
+          <div class="verdict-meta">
+            <span><strong>Domain:</strong> <span id="metaDomain"></span></span>
+            <span><strong>Risk Level:</strong> <span id="metaRisk"></span></span>
+            <span><strong>Global Consensus:</strong> <span id="metaConsensus"></span></span>
+          </div>
+        </div>
+
+        <!-- Dual-Pane Pro vs Con Evidence Board -->
+        <div class="evidence-grid">
+          <!-- Pro Column -->
+          <div class="card evidence-col pro-col">
+            <div class="col-head">
+              <span class="indicator pro-ind"></span>
+              <h4>Evidence Supporting Claim (Pro)</h4>
+            </div>
+            <p class="col-sub">Proponent arguments, manufacturer marketing assertions, or revisionist theories</p>
+            <div id="proList" class="evidence-items"></div>
+          </div>
+
+          <!-- Con Column -->
+          <div class="card evidence-col con-col">
+            <div class="col-head">
+              <span class="indicator con-ind"></span>
+              <h4>Evidence Contradicting Claim (Con)</h4>
+            </div>
+            <p class="col-sub">Regulatory alerts (FDA/WHO), peer-reviewed research, Google Fact Check verdicts</p>
+            <div id="conList" class="evidence-items"></div>
+          </div>
+        </div>
+
+        <!-- Latency Breakdown -->
+        <div class="card latency-card">
+          <h4>End-to-End Pipeline Telemetry</h4>
+          <div class="latency-grid" id="latencyGrid"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Tab 2: Media Pipeline -->
+    <section id="tab-media" class="tab-pane">
+      <div class="card">
+        <h3>Media Ingestion & Speech-to-Text Pipeline</h3>
+        <p class="text-muted">Upload video or audio content. FFmpeg extracts audio using low-latency flags (-30% latency), transcribes speech with Whisper STT, and dispatches the extracted claims to the agentic verifier.</p>
+        <div class="form-group">
+          <input type="file" id="mediaFileInput" accept="audio/*,video/*" class="file-input">
+        </div>
+        <button id="uploadMediaBtn" class="btn btn-primary">Process Media Stream</button>
+      </div>
+
+      <div id="mediaOutput" class="card hidden">
+        <h4>Media Pipeline Execution</h4>
+        <div id="mediaStatus" class="status-box"></div>
+      </div>
+    </section>
+
+    <!-- Tab 3: FFmpeg Latency Benchmark -->
+    <section id="tab-benchmark" class="tab-pane">
+      <div class="card">
+        <h3>FFmpeg Media Preprocessing Latency Benchmark</h3>
+        <p class="text-muted">Demonstrates the 30% reduction in audio analysis latency achieved by optimizing FFmpeg flags for real-time speech processing.</p>
+        <button id="runBenchmarkBtn" class="btn btn-primary">Run Latency Benchmark</button>
+
+        <div id="benchmarkResult" class="benchmark-box hidden">
+          <div class="bench-stats">
+            <div class="bench-item">
+              <span class="bench-label">Standard Pipeline:</span>
+              <span class="bench-val" id="benchStd">-- ms</span>
+            </div>
+            <div class="bench-arrow">&rarr;</div>
+            <div class="bench-item">
+              <span class="bench-label">VeriStream Optimized:</span>
+              <span class="bench-val text-green" id="benchOpt">-- ms</span>
+            </div>
+            <div class="bench-item">
+              <span class="bench-badge" id="benchPct">-30% Latency</span>
+            </div>
+          </div>
+          <div class="flags-box">
+            <strong>Active Optimization Flags:</strong>
+            <code id="benchFlags"></code>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Asynchronous Notifications Bar -->
+    <aside class="notifications-drawer">
+      <div class="drawer-header">
+        <span>Real-Time Async Notifications</span>
+        <button id="clearLogsBtn" class="btn-link">Clear</button>
+      </div>
+      <div class="drawer-body" id="notifList">
+        <div class="notif-empty">Awaiting background verification tasks...</div>
+      </div>
+    </aside>
+  </main>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>
