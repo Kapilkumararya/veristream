@@ -84,6 +84,45 @@ The backend utilizes **FastAPI** for high-throughput asynchronous services, **FF
 
 ---
 
+## Project Structure
+
+```
+veristream/
+├── backend/
+│   ├── app/
+│   │   ├── main.py                 # FastAPI application, CORS, static mounting & WebSockets
+│   │   ├── config.py               # Pydantic settings & path resolvers
+│   │   ├── models/
+│   │   │   └── schemas.py          # Data models (Claims, Evidence, Thought Steps, Verdicts)
+│   │   ├── services/
+│   │   │   ├── agentic_verifier.py # Core Agentic AI: Pro vs Con evidence & dialectical reasoning
+│   │   │   ├── ffmpeg_service.py   # Low-latency media preprocessing (~30% latency reduction)
+│   │   │   ├── whisper_service.py  # OpenAI Whisper STT API & speech bridge
+│   │   │   ├── google_factcheck.py # Google Fact Check Tools API integration
+│   │   │   ├── claim_extractor.py  # Natural language claim extraction & domain classification
+│   │   │   └── task_manager.py     # Asynchronous task runner & WebSocket notifications
+│   │   └── routers/
+│   │       ├── verify.py           # Verification endpoints (/api/verify/text, /async, /media)
+│   │       ├── tasks.py            # Task tracking (/api/tasks/{task_id})
+│   │       ├── benchmark.py        # Telemetry & benchmarks (/api/benchmark/ffmpeg-latency)
+│   │       └── websocket.py        # Real-time WebSocket notifications (/ws/notifications)
+│   ├── requirements.txt            # Python dependencies
+│   ├── .env.example                # Environment variables template
+│   ├── uploads/                    # Temporary media ingest storage
+│   └── temp/                       # Scratch transcode directory
+├── frontend/
+│   ├── index.html                  # Operator console UI
+│   ├── style.css                   # Minimalist modern styling
+│   └── app.js                      # Client logic connecting to REST & WebSockets
+├── bin/
+│   └── ffmpeg.exe                  # Standalone local FFmpeg fallback
+├── .gitignore
+├── LICENSE
+└── README.md
+```
+
+---
+
 ## Technologies Used
 
 * **Backend Framework**: FastAPI (Python 3.12), Starlette, Uvicorn
@@ -106,13 +145,13 @@ The backend utilizes **FastAPI** for high-throughput asynchronous services, **FF
 
 ```bash
 git clone https://github.com/Kapilkumararya/veristream.git
-cd veristream
+cd veristream/backend
 pip install -r requirements.txt
 ```
 
 ### 2. Configuration (Optional)
 
-Create a `.env` file (or copy `.env.example`):
+In `backend/`, create a `.env` file (or copy `.env.example`):
 
 ```env
 HOST=0.0.0.0
@@ -125,8 +164,15 @@ GOOGLE_FACT_CHECK_API_KEY=your_google_fact_check_key_here
 
 ### 3. Run the Server
 
+From the `backend/` folder:
 ```bash
+cd backend
 python -m uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+```
+
+Or from the project root:
+```bash
+python -m uvicorn backend.app.main:app --host 0.0.0.0 --port 8000 --reload
 ```
 
 * **Web Console**: [http://localhost:8000/](http://localhost:8000/)

@@ -4,6 +4,7 @@ from pathlib import Path
 from pydantic_settings import BaseSettings
 
 BASE_DIR = Path(__file__).resolve().parent.parent
+ROOT_DIR = BASE_DIR.parent
 
 class Settings(BaseSettings):
     host: str = "0.0.0.0"
@@ -32,11 +33,11 @@ settings = Settings()
 # Directory paths
 UPLOADS_DIR = BASE_DIR / "uploads"
 TEMP_DIR = BASE_DIR / "temp"
-STATIC_DIR = BASE_DIR / "app" / "static"
+FRONTEND_DIR = ROOT_DIR / "frontend"
+STATIC_DIR = FRONTEND_DIR if FRONTEND_DIR.exists() else (BASE_DIR / "static")
 
 UPLOADS_DIR.mkdir(parents=True, exist_ok=True)
 TEMP_DIR.mkdir(parents=True, exist_ok=True)
-STATIC_DIR.mkdir(parents=True, exist_ok=True)
 
 def resolve_ffmpeg_path() -> str:
     """Finds the best available FFmpeg binary on the system."""
@@ -47,7 +48,7 @@ def resolve_ffmpeg_path() -> str:
     if system_ffmpeg:
         return system_ffmpeg
         
-    local_bin_ffmpeg = BASE_DIR / "bin" / "ffmpeg.exe"
+    local_bin_ffmpeg = ROOT_DIR / "bin" / "ffmpeg.exe"
     if local_bin_ffmpeg.exists():
         return str(local_bin_ffmpeg)
         
