@@ -3,15 +3,18 @@ from typing import List, Optional, Dict, Any
 from pydantic import BaseModel, Field
 
 class ClaimDomain(str, Enum):
-    HEALTH_PRODUCT = "health_product_claim"
-    HISTORICAL = "historical_claim"
-    SCIENTIFIC = "scientific_claim"
-    GENERAL = "general_claim"
+    HEALTH = "health_domain"
+    ENVIRONMENTAL = "environmental_domain"
+    HISTORICAL = "historical_domain"
+    GENERAL = "general_domain"
+    
+    # Aliases for backward compatibility
+    HEALTH_PRODUCT = "health_domain"
 
 class VerdictType(str, Enum):
     VERIFIED_TRUE = "VERIFIED_TRUE"
     DEBUNKED_FALSE = "DEBUNKED_FALSE"
-    MISLEADING = "MISLEADING_CHERRY_PICKED"
+    MISLEADING_CHERRY_PICKED = "MISLEADING_CHERRY_PICKED"
     UNSUBSTANTIATED = "UNSUBSTANTIATED"
 
 class EvidenceItem(BaseModel):
@@ -32,17 +35,21 @@ class AgentThoughtStep(BaseModel):
 class AgentVerificationResult(BaseModel):
     id: str
     claim_text: str
-    normalized_query: str
-    domain: ClaimDomain
+    normalized_query: Optional[str] = None
+    media_type: Optional[str] = "text"
+    domain: str
     verdict: VerdictType
     textual_rating: str
     confidence_score: float
     verdict_summary: str
+    explainable_report: Optional[str] = None
     
-    # Autonomous Dialectical Evidence Synthesis
+    # LangGraph Dialectical Evidence Synthesis
     agent_thought_process: List[AgentThoughtStep]
     supporting_evidence: List[EvidenceItem]
     refuting_evidence: List[EvidenceItem]
+    quantitative_analysis: Optional[Dict[str, Any]] = None
+    source_validation: Optional[Dict[str, Any]] = None
     
     consensus_assessment: str
     risk_level: str
@@ -50,7 +57,7 @@ class AgentVerificationResult(BaseModel):
     created_at: str
 
 class VerifyTextRequest(BaseModel):
-    text: str = Field(..., min_length=3, description="Claim or statement to verify")
+    text: str = Field(..., min_length=3, description="Claim or statement to investigate")
     domain: Optional[ClaimDomain] = None
 
 class AsyncVerificationResponse(BaseModel):
@@ -61,7 +68,7 @@ class AsyncVerificationResponse(BaseModel):
 
 class TaskNotification(BaseModel):
     task_id: str
-    status: str  # queued, thinking, collecting_evidence, deliberating, completed, failed
+    status: str  # queued, thinking, collecting_evidence, completed, failed
     current_thought: Optional[str] = None
     progress: int = 0
     result: Optional[AgentVerificationResult] = None

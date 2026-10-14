@@ -30,3 +30,7 @@ bin/ffmpeg.exe
 *.log
 .DS_Store
 Thumbs.db
+qdrant_storage/
+backend/qdrant_storage/
+backend/uploads/
+backend/temp/

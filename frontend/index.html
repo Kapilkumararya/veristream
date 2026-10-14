@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>VeriStream — Agentic AI Multimodal Fact Verification Engine</title>
+  <title>VeriStream — LangGraph & Qdrant Evidence-Based Investigation Platform</title>
   <link rel="stylesheet" href="/static/style.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -16,59 +16,69 @@
       <div class="logo-badge">VS</div>
       <div>
         <h1 class="logo-title">VeriStream</h1>
-        <p class="logo-subtitle">Agentic AI Fact Verification Engine &bull; FastAPI Backend</p>
+        <p class="logo-subtitle">AI-Powered Evidence-Based Investigation Platform &bull; LangGraph &bull; Qdrant &bull; FastAPI</p>
       </div>
     </div>
     <div class="nav-actions">
       <span class="badge badge-accent">-30% Audio Latency (FFmpeg)</span>
       <span class="badge badge-outline" id="wsStatus">WS: Connecting...</span>
-      <a href="/docs" target="_blank" class="api-docs-link">FastAPI Docs &rarr;</a>
+      <a href="/docs" target="_blank" class="api-docs-link">FastAPI Swagger UI &rarr;</a>
     </div>
   </header>
 
   <main class="container">
     <!-- Domain Focus Banner -->
     <div class="banner">
-      <strong>Specialized Verification Domains:</strong> Health-Related Product Claims &bull; Historical Claims &bull; Multimodal Media Pipelines
+      <strong>Core Domains & Architecture:</strong> Health &bull; Environmental &bull; Historical &bull; Asynchronous LangGraph Workflows &bull; Qdrant Vector RAG &bull; React Native
     </div>
 
     <!-- Mode Tabs -->
     <div class="tabs">
-      <button class="tab-btn active" data-tab="tab-agent">Agentic Claim Investigation</button>
-      <button class="tab-btn" data-tab="tab-media">Media Pipeline (FFmpeg + Whisper)</button>
-      <button class="tab-btn" data-tab="tab-benchmark">FFmpeg Latency Benchmark</button>
+      <button class="tab-btn active" data-tab="tab-agent">LangGraph Investigation</button>
+      <button class="tab-btn" data-tab="tab-media">Multimodal Ingestion (Video/Audio/Image)</button>
+      <button class="tab-btn" data-tab="tab-benchmark">FFmpeg Preprocessing Benchmark</button>
+      <button class="tab-btn" data-tab="tab-mobile">React Native Mobile Client</button>
     </div>
 
-    <!-- Tab 1: Agentic Claim Investigation -->
+    <!-- Tab 1: LangGraph Investigation -->
     <section id="tab-agent" class="tab-pane active">
       <div class="card">
-        <h3>Investigate Factual Claim</h3>
-        <p class="text-muted">The agent autonomously decomposes the claim, collects supporting (Pro) and refuting (Con) evidence, cross-examines sources, and outputs an explainable verdict.</p>
+        <h3>Autonomous LangGraph Investigation Workflow</h3>
+        <p class="text-muted">Stateful 6-node agentic workflow orchestrating domain classification, Qdrant vector RAG retrieval, evidence bifurcation (Pro vs Con), quantitative analysis, source validation, and explainable report synthesis.</p>
 
-        <!-- Presets -->
+        <!-- Presets by Domain -->
         <div class="preset-group">
-          <span class="preset-label">Test Presets:</span>
-          <button class="preset-chip" data-claim="Colloidal silver supplements cure cancer and bacterial infections.">Colloidal Silver (Health Product)</button>
-          <button class="preset-chip" data-claim="Apple cider vinegar gummies dissolve visceral fat and cure Type 2 diabetes.">ACV Gummies (Health Product)</button>
-          <button class="preset-chip" data-claim="The Apollo 11 moon landing was staged in a studio, proven by the waving American flag.">Apollo 11 Flag (Historical)</button>
+          <span class="preset-label">Health Claims:</span>
+          <button class="preset-chip" data-claim="Colloidal silver supplements cure cancer and bacterial infections.">Colloidal Silver (Health)</button>
+          <button class="preset-chip" data-claim="Apple cider vinegar gummies dissolve visceral fat and cure Type 2 diabetes.">ACV Gummies (Health)</button>
+          <button class="preset-chip" data-claim="Miracle Mineral Solution (MMS) cures autism and viral infections.">MMS Bleach (Health)</button>
+        </div>
+        <div class="preset-group">
+          <span class="preset-label">Environmental Claims:</span>
+          <button class="preset-chip" data-claim="The levelized cost of solar photovoltaic electricity dropped by over 80% over the last decade.">Solar PV 80% Drop (Environmental)</button>
+          <button class="preset-chip" data-claim="Antarctica has been gaining net continental land ice sheet mass over the past twenty years.">Antarctica Ice Mass (Environmental)</button>
+        </div>
+        <div class="preset-group">
+          <span class="preset-label">Historical Claims:</span>
           <button class="preset-chip" data-claim="Smallpox was declared officially eradicated worldwide in 1980 following a global vaccination campaign.">Smallpox 1980 (Historical)</button>
-          <button class="preset-chip" data-claim="The Titanic was secretly swapped with the damaged Olympic as an insurance fraud conspiracy.">Titanic Swap (Historical)</button>
+          <button class="preset-chip" data-claim="The Apollo 11 moon landing was staged in a studio, proven by the waving American flag.">Apollo 11 Flag (Historical)</button>
+          <button class="preset-chip" data-claim="The Titanic was secretly swapped with the damaged Olympic as an insurance fraud conspiracy.">Titanic Switch (Historical)</button>
         </div>
 
         <div class="form-group">
-          <textarea id="claimInput" rows="3" class="input-text" placeholder="Enter claim or proposition to analyze..."></textarea>
+          <textarea id="claimInput" rows="3" class="input-text" placeholder="Enter claim or proposition to investigate across health, environmental, or historical domains..."></textarea>
         </div>
 
         <div class="btn-row">
-          <button id="verifySyncBtn" class="btn btn-primary">Run Agentic Verification</button>
+          <button id="verifySyncBtn" class="btn btn-primary">Execute LangGraph Workflow</button>
           <button id="verifyAsyncBtn" class="btn btn-secondary">Dispatch Async Task (WebSocket Notify)</button>
         </div>
       </div>
 
-      <!-- Agent Thinking Trail -->
+      <!-- Agent Chain of Thought -->
       <div id="thoughtContainer" class="card hidden">
         <div class="card-header">
-          <h4>Agent Autonomous Chain of Thought</h4>
+          <h4>LangGraph Multi-Node Chain of Thought</h4>
           <span class="spinner" id="thinkingSpinner"></span>
         </div>
         <div class="thought-list" id="thoughtList"></div>
@@ -91,8 +101,8 @@
           <p class="verdict-summary" id="verdictSummary"></p>
           <div class="verdict-meta">
             <span><strong>Domain:</strong> <span id="metaDomain"></span></span>
-            <span><strong>Risk Level:</strong> <span id="metaRisk"></span></span>
-            <span><strong>Global Consensus:</strong> <span id="metaConsensus"></span></span>
+            <span><strong>Risk Profile:</strong> <span id="metaRisk"></span></span>
+            <span><strong>Consensus Assessment:</strong> <span id="metaConsensus"></span></span>
           </div>
         </div>
 
@@ -102,9 +112,9 @@
           <div class="card evidence-col pro-col">
             <div class="col-head">
               <span class="indicator pro-ind"></span>
-              <h4>Evidence Supporting Claim (Pro)</h4>
+              <h4>Supporting Evidence (Pro)</h4>
             </div>
-            <p class="col-sub">Proponent arguments, manufacturer marketing assertions, or revisionist theories</p>
+            <p class="col-sub">Proponent hypotheses, commercial marketing assertions, or revisionist narratives</p>
             <div id="proList" class="evidence-items"></div>
           </div>
 
@@ -112,34 +122,66 @@
           <div class="card evidence-col con-col">
             <div class="col-head">
               <span class="indicator con-ind"></span>
-              <h4>Evidence Contradicting Claim (Con)</h4>
+              <h4>Contradicting Evidence (Con)</h4>
             </div>
-            <p class="col-sub">Regulatory alerts (FDA/WHO), peer-reviewed research, Google Fact Check verdicts</p>
+            <p class="col-sub">Qdrant RAG dense vector retrieval (FDA, WHO, NASA, IPCC, peer-reviewed RCTs)</p>
             <div id="conList" class="evidence-items"></div>
+          </div>
+        </div>
+
+        <!-- Investigation Report Section -->
+        <div class="card" id="reportCard">
+          <h4>Citation-Backed Investigation Report</h4>
+          <pre class="report-box" id="reportContent"></pre>
+        </div>
+
+        <!-- Quantitative Analysis & Source Validation -->
+        <div class="card">
+          <h4>Quantitative Scrutiny & Evidence Hierarchy</h4>
+          <div class="meta-details-grid">
+            <div class="detail-block">
+              <strong>Quantitative Analysis:</strong>
+              <div id="quantFindings" class="detail-val"></div>
+            </div>
+            <div class="detail-block">
+              <strong>Source Hierarchy & Authority:</strong>
+              <div id="sourceFindings" class="detail-val"></div>
+            </div>
           </div>
         </div>
 
         <!-- Latency Breakdown -->
         <div class="card latency-card">
-          <h4>End-to-End Pipeline Telemetry</h4>
+          <h4>LangGraph Stage Telemetry</h4>
           <div class="latency-grid" id="latencyGrid"></div>
         </div>
       </div>
     </section>
 
-    <!-- Tab 2: Media Pipeline -->
+    <!-- Tab 2: Multimodal Pipeline -->
     <section id="tab-media" class="tab-pane">
       <div class="card">
-        <h3>Media Ingestion & Speech-to-Text Pipeline</h3>
-        <p class="text-muted">Upload video or audio content. FFmpeg extracts audio using low-latency flags (-30% latency), transcribes speech with Whisper STT, and dispatches the extracted claims to the agentic verifier.</p>
+        <h3>Multimodal Ingestion Pipeline (Video, Audio, Image)</h3>
+        <p class="text-muted">Ingests multimedia content: video and audio are preprocessed with low-latency FFmpeg flags (-30% latency) and transcribed with Whisper STT; images are inspected for visual claims; claims are classified and fed into LangGraph RAG.</p>
+        
         <div class="form-group">
+          <label><strong>1. Audio or Video File (MP4, WebM, WAV, MP3):</strong></label>
           <input type="file" id="mediaFileInput" accept="audio/*,video/*" class="file-input">
+          <button id="uploadMediaBtn" class="btn btn-primary" style="margin-top: 10px;">Ingest Media Stream</button>
         </div>
-        <button id="uploadMediaBtn" class="btn btn-primary">Process Media Stream</button>
+
+        <hr style="border: 0; border-top: 1px solid var(--card-border); margin: 20px 0;">
+
+        <div class="form-group">
+          <label><strong>2. Visual Claim Image (Infographic / Screenshot):</strong></label>
+          <input type="file" id="imageFileInput" accept="image/*" class="file-input">
+          <input type="text" id="imageCaptionInput" class="input-text" placeholder="Optional claim caption or text overlay from image..." style="margin-top: 10px;">
+          <button id="uploadImageBtn" class="btn btn-secondary" style="margin-top: 10px;">Ingest Visual Claim</button>
+        </div>
       </div>
 
       <div id="mediaOutput" class="card hidden">
-        <h4>Media Pipeline Execution</h4>
+        <h4>Multimodal Pipeline Execution</h4>
         <div id="mediaStatus" class="status-box"></div>
       </div>
     </section>
@@ -148,7 +190,7 @@
     <section id="tab-benchmark" class="tab-pane">
       <div class="card">
         <h3>FFmpeg Media Preprocessing Latency Benchmark</h3>
-        <p class="text-muted">Demonstrates the 30% reduction in audio analysis latency achieved by optimizing FFmpeg flags for real-time speech processing.</p>
+        <p class="text-muted">Demonstrates the 30% reduction in audio analysis latency achieved by optimizing FFmpeg flags (`-nobuffer`, `-flags low_delay`, `-probesize 32k`) for real-time speech processing.</p>
         <button id="runBenchmarkBtn" class="btn btn-primary">Run Latency Benchmark</button>
 
         <div id="benchmarkResult" class="benchmark-box hidden">
@@ -174,10 +216,42 @@
       </div>
     </section>
 
+    <!-- Tab 4: React Native Mobile Client -->
+    <section id="tab-mobile" class="tab-pane">
+      <div class="card">
+        <h3>React Native Mobile Client Integration</h3>
+        <p class="text-muted">VeriStream exposes dedicated mobile endpoints for React Native apps to stream investigations, receive real-time push notifications over WebSockets, and render citation cards.</p>
+        
+        <div class="code-box">
+          <strong>React Native Integration Hook (`useVeriStream.ts`):</strong>
+          <pre><code>import { useState, useEffect } from 'react';
+
+export const useVeriStream = (endpoint = 'http://localhost:8000') => {
+  const [investigation, setInvestigation] = useState(null);
+  const [loading, setLoading] = useState(false);
+
+  const investigateClaim = async (text: string) => {
+    setLoading(true);
+    const response = await fetch(`${endpoint}/api/mobile/investigate`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text })
+    });
+    const result = await response.json();
+    setInvestigation(result);
+    setLoading(false);
+  };
+
+  return { investigation, loading, investigateClaim };
+};</code></pre>
+        </div>
+      </div>
+    </section>
+
     <!-- Asynchronous Notifications Bar -->
     <aside class="notifications-drawer">
       <div class="drawer-header">
-        <span>Real-Time Async Notifications</span>
+        <span>Real-Time Async Notifications (WebSockets)</span>
         <button id="clearLogsBtn" class="btn-link">Clear</button>
       </div>
       <div class="drawer-body" id="notifList">

@@ -1,85 +1,80 @@
-# VeriStream: Real-Time Multimodal Fact Verification Engine
+# VeriStream: AI-Powered Evidence-Based Investigation Platform
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.104%2B-009688.svg)](https://fastapi.tiangolo.com/)
-[![Python](https://img.shields.io/badge/Python-3.12-3776AB.svg)](https://python.org/)
-[![FFmpeg](https://img.shields.io/badge/FFmpeg-Low--Latency-orange.svg)](https://ffmpeg.org/)
-[![Google Fact Check API](https://img.shields.io/badge/API-Google%20Fact%20Check-blue.svg)](https://toolbox.google.com/factcheck/explorer)
-[![OpenAI Whisper](https://img.shields.io/badge/STT-OpenAI%20Whisper-purple.svg)](https://openai.com/research/whisper)
+[![LangGraph](https://img.shields.io/badge/LangGraph-StateGraph-orange.svg)](https://github.com/langchain-ai/langgraph)
+[![Qdrant](https://img.shields.io/badge/Qdrant-Vector%20DB-red.svg)](https://qdrant.tech/)
+[![React Native](https://img.shields.io/badge/Client-React%20Native-61DAFB.svg)](https://reactnative.dev/)
+[![OpenAI Whisper](https://img.shields.io/badge/STT-Whisper-purple.svg)](https://openai.com/research/whisper)
+[![FFmpeg](https://img.shields.io/badge/FFmpeg-Low--Latency-green.svg)](https://ffmpeg.org/)
 
-**VeriStream** is an AI-powered fact verification platform that analyzes claims from videos, audio, and text in real time. The system automatically extracts spoken and textual claims from multimedia content, transcribes audio using OpenAI Whisper, and validates information through evidence retrieval and fact-checking pipelines. It focuses on domains such as **health-related product claims** and **historical claims**, providing explainable verdicts along with confidence scores and supporting evidence.
-
-The backend utilizes **FastAPI** for high-throughput asynchronous services, **FFmpeg** for media preprocessing, **OpenAI Whisper** for speech-to-text transcription, **Google Fact Check API** for claim validation, and supports client integrations including **Android SDK**. An asynchronous processing architecture with real-time user notifications enables efficient handling of long-running verification tasks. Media preprocessing optimizations reduced audio analysis latency by approximately **30%**, improving the responsiveness of the verification pipeline.
-
----
-
-## Key Highlights & Architectural Capabilities
-
-* **Autonomous Agentic Reasoning Loop**: VeriStream features an autonomous agentic engine that thinks for itself through a multi-stage cognitive pipeline:
-  1. **Claim Decomposition**: Deconstructs propositions into atomic testable assertions and models risk.
-  2. **Pro-Evidence Retrieval**: Formulates targeted queries to find arguments, purported studies, or marketing narratives in favor of the claim.
-  3. **Con-Evidence Retrieval**: Queries Google Fact Check Tools API and regulatory databases (FDA, WHO, NIH, CDC) for refutations and contraindications.
-  4. **Dialectical Cross-Examination**: Compares source authority (peer-reviewed human RCTs vs marketing anecdotes) and tests reproducibility.
-  5. **Explainable Verdict Synthesis**: Emits an explainable verdict, confidence score, consensus assessment, and risk profile.
-* **Specialized Focus Domains**:
-  * **Health-Related Product Claims**: Colloidal silver cure-alls, apple cider vinegar fat-melting gummies, Miracle Mineral Solution (MMS) bleach toxicity, mRNA genome modification myths.
-  * **Historical Claims**: Apollo 11 studio staging conspiracies, 1980 global smallpox eradication, Great Wall orbital visibility myths, Titanic/Olympic insurance switch conspiracies.
-* **30% Audio Latency Reduction via FFmpeg**: High-efficiency media preprocessing using `-probesize 32k`, `-analyzeduration 100k`, `-fflags +nobuffer+fastseek`, and `-flags +low_delay` to transcode streaming media directly to 16kHz mono 16-bit PCM WAV.
-* **Asynchronous Architecture with Notifications**: Long-running media ingestion and investigation tasks execute as background jobs with real-time thought updates streamed over WebSockets (`/ws/notifications`).
-* **Interactive OpenAPI / Swagger Documentation**: Full interactive API documentation automatically hosted at `/docs`.
+**Timeline:** 01/2026 – 04/2026  
+**Technologies:** FastAPI, Python, LangGraph, React Native, OpenAI Whisper, FFmpeg, Qdrant
 
 ---
 
-## System Architecture
+## Executive Summary & Key Highlights
+
+* **Multimodal Investigation Pipeline**: Designed a multimodal investigation pipeline for video, audio, image, and text processing with automated factual claim extraction and domain classification across **Health**, **Environmental**, and **Historical** domains.
+* **Asynchronous LangGraph Workflows**: Architected stateful asynchronous LangGraph workflows for evidence retrieval, quantitative analysis, source validation, confidence scoring, and explainable verdict generation.
+* **RAG-Based Evidence Retrieval via Qdrant**: Integrated Whisper and FFmpeg for media processing with Qdrant vector database retrieval, enabling citation-backed investigation reports supported by authoritative regulatory and peer-reviewed registries.
+* **30% Media Preprocessing Latency Reduction**: Optimized audio ingestion with FFmpeg low-latency flags (`-probesize 32k`, `-analyzeduration 100k`, `-fflags +nobuffer+fastseek`, `-flags +low_delay`), reducing audio analysis latency by ~30% for real-time speech processing.
+* **React Native Ready**: Full React Native mobile client hook and screen component (`frontend/react-native/`) backed by WebSocket push notifications.
+
+---
+
+## LangGraph Asynchronous Architecture
 
 ```
-                    ┌──────────────────────────────────────────────┐
-                    │      Multimodal Input (Text/Audio/Video)     │
-                    └──────────────────────┬───────────────────────┘
-                                           │
-                                           ▼
-                    ┌──────────────────────────────────────────────┐
-                    │     FFmpeg Low-Latency Audio Pipeline (-30%) │
-                    │     (Transcodes directly to 16kHz PCM WAV)   │
-                    └──────────────────────┬───────────────────────┘
-                                           │
-                                           ▼
-                    ┌──────────────────────────────────────────────┐
-                    │          OpenAI Whisper STT Engine           │
-                    │      (Streaming Transcription & Timing)      │
-                    └──────────────────────┬───────────────────────┘
-                                           │
-                                           ▼
-                    ┌──────────────────────────────────────────────┐
-                    │        Agentic AI Investigation Loop         │
-                    │                                              │
-                    │   ┌──────────────────────────────────────┐   │
-                    │   │ 1. Claim Decomposition & Domain Type │   │
-                    │   └──────────────────┬───────────────────┘   │
-                    │                      │                       │
-                    │         ┌────────────┴────────────┐          │
-                    │         ▼                         ▼          │
-                    │  ┌───────────────┐        ┌───────────────┐  │
-                    │  │  Pro-Evidence │        │  Con-Evidence │  │
-                    │  │  (Supporting) │        │  (Refuting)   │  │
-                    │  └───────┬───────┘        └───────┬───────┘  │
-                    │          │                        │          │
-                    │          └───────────┬────────────┘          │
-                    │                      ▼                       │
-                    │   ┌──────────────────────────────────────┐   │
-                    │   │ 4. Cross-Examination & Weighting     │   │
-                    │   └──────────────────┬───────────────────┘   │
-                    │                      ▼                       │
-                    │   ┌──────────────────────────────────────┐   │
-                    │   │ 5. Explainable Verdict & Confidence  │   │
-                    │   └──────────────────────────────────────┘   │
-                    └──────────────────────┬───────────────────────┘
-                                           │
-                                           ▼
-                    ┌──────────────────────────────────────────────┐
-                    │   FastAPI WebSockets / User Push Notification │
-                    │   (Live Chain of Thought + Pro/Con Board)    │
-                    └──────────────────────────────────────────────┘
+                 ┌────────────────────────────────────────────────────────┐
+                 │       Multimodal Ingestion (Video, Audio, Image, Text) │
+                 └───────────────────────────┬────────────────────────────┘
+                                             │
+                                             ▼
+                 ┌────────────────────────────────────────────────────────┐
+                 │        FFmpeg Audio Preprocessing (-30% Latency)       │
+                 │      (Transcodes directly to 16kHz mono PCM WAV)       │
+                 └───────────────────────────┬────────────────────────────┘
+                                             │
+                                             ▼
+                 ┌────────────────────────────────────────────────────────┐
+                 │         OpenAI Whisper / Groq Speech-to-Text           │
+                 │          (Automated Claim Extraction Engine)           │
+                 └───────────────────────────┬────────────────────────────┘
+                                             │
+                                             ▼
+                 ┌────────────────────────────────────────────────────────┐
+                 │          Stateful LangGraph Investigation Graph        │
+                 │                                                        │
+                 │   [1. Domain Classifier & Entity Extraction]           │
+                 │       (Health, Environmental, Historical)              │
+                 │                         │                              │
+                 │                         ▼                              │
+                 │   [2. Qdrant Vector DB Semantic Search & RAG]          │
+                 │       (Retrieves authoritative institutional corpus)   │
+                 │                         │                              │
+                 │                         ▼                              │
+                 │   [3. Dialectical Evidence Bifurcation]                │
+                 │       (Separates Pro vs Con findings)                  │
+                 │                         │                              │
+                 │                         ▼                              │
+                 │   [4. Quantitative & Statistical Scrutiny]             │
+                 │       (Analyzes sample sizes, empirical metrics)       │
+                 │                         │                              │
+                 │                         ▼                              │
+                 │   [5. Source Validation & Credibility Hierarchy]       │
+                 │       (Peer-reviewed > Regulatory > Testimonials)      │
+                 │                         │                              │
+                 │                         ▼                              │
+                 │   [6. Explainable Verdict & Report Generation]         │
+                 │       (Generates confidence scores & citations)        │
+                 └───────────────────────────┬────────────────────────────┘
+                                             │
+                                             ▼
+                 ┌────────────────────────────────────────────────────────┐
+                 │     FastAPI WebSocket Real-Time Notification Stream    │
+                 │    (Web Operator Console & React Native Mobile App)    │
+                 └────────────────────────────────────────────────────────┘
 ```
 
 ---
@@ -88,34 +83,41 @@ The backend utilizes **FastAPI** for high-throughput asynchronous services, **FF
 
 ```
 veristream/
-├── backend/
+├── backend/                        # FastAPI & LangGraph Backend
 │   ├── app/
-│   │   ├── main.py                 # FastAPI application, CORS, static mounting & WebSockets
-│   │   ├── config.py               # Pydantic settings & path resolvers
+│   │   ├── main.py                 # FastAPI application, CORS, routers, WebSockets
+│   │   ├── config.py               # Settings (.env loader, Qdrant paths, FFmpeg)
 │   │   ├── models/
 │   │   │   └── schemas.py          # Data models (Claims, Evidence, Thought Steps, Verdicts)
 │   │   ├── services/
-│   │   │   ├── agentic_verifier.py # Core Agentic AI: Pro vs Con evidence & dialectical reasoning
+│   │   │   ├── langgraph_workflow.py # Stateful 6-node LangGraph investigation engine
+│   │   │   ├── qdrant_service.py   # Qdrant Vector DB (Dense embeddings, Cosine search)
 │   │   │   ├── ffmpeg_service.py   # Low-latency media preprocessing (~30% latency reduction)
-│   │   │   ├── whisper_service.py  # OpenAI Whisper STT API & speech bridge
-│   │   │   ├── google_factcheck.py # Google Fact Check Tools API integration
-│   │   │   ├── claim_extractor.py  # Natural language claim extraction & domain classification
-│   │   │   └── task_manager.py     # Asynchronous task runner & WebSocket notifications
+│   │   │   ├── whisper_service.py  # OpenAI Whisper & Groq Whisper STT integration
+│   │   │   ├── claim_extractor.py  # Natural language claim extraction & entity detection
+│   │   │   ├── google_factcheck.py # Google Fact Check Tools API client
+│   │   │   └── task_manager.py     # Asynchronous background tasks & WebSocket notifications
 │   │   └── routers/
-│   │       ├── verify.py           # Verification endpoints (/api/verify/text, /async, /media)
-│   │       ├── tasks.py            # Task tracking (/api/tasks/{task_id})
-│   │       ├── benchmark.py        # Telemetry & benchmarks (/api/benchmark/ffmpeg-latency)
+│   │       ├── verify.py           # Verification endpoints (/api/verify/text, /async, /media, /image)
+│   │       ├── mobile.py           # React Native mobile endpoints (/api/mobile/domains, /investigate)
+│   │       ├── tasks.py            # Background task polling (/api/tasks/{task_id})
+│   │       ├── benchmark.py        # Preprocessing latency benchmarks (/api/benchmark/ffmpeg-latency)
 │   │       └── websocket.py        # Real-time WebSocket notifications (/ws/notifications)
-│   ├── requirements.txt            # Python dependencies
+│   ├── requirements.txt            # Python dependencies (FastAPI, LangGraph, Qdrant, etc.)
 │   ├── .env.example                # Environment variables template
-│   ├── uploads/                    # Temporary media ingest storage
-│   └── temp/                       # Scratch transcode directory
-├── frontend/
-│   ├── index.html                  # Operator console UI
-│   ├── style.css                   # Minimalist modern styling
-│   └── app.js                      # Client logic connecting to REST & WebSockets
+│   ├── uploads/                    # Scratch media storage
+│   └── temp/                       # Audio transcode scratch directory
+│
+├── frontend/                       # Client Applications
+│   ├── index.html                  # Operator Console UI
+│   ├── style.css                   # Minimalist modern CSS
+│   ├── app.js                      # Client logic connecting to REST & WebSockets
+│   └── react-native/               # React Native Client Integration
+│       ├── useVeriStream.ts        # Reusable React Native Hook with WebSocket listener
+│       └── VeriStreamInvestigationScreen.tsx # Ready-to-use mobile screen component
+│
 ├── bin/
-│   └── ffmpeg.exe                  # Standalone local FFmpeg fallback
+│   └── ffmpeg.exe                  # Standalone local FFmpeg binary
 ├── .gitignore
 ├── LICENSE
 └── README.md
@@ -123,25 +125,9 @@ veristream/
 
 ---
 
-## Technologies Used
+## Installation & Setup
 
-* **Backend Framework**: FastAPI (Python 3.12), Starlette, Uvicorn
-* **Speech-to-Text**: OpenAI Whisper API (`whisper-1`) + client-side speech bridge
-* **Media Preprocessing**: FFmpeg (`ffmpeg` subprocess with low-latency flags)
-* **Fact-Checking APIs**: Google Fact Check Tools API (`factchecktools.googleapis.com`) + Curated Health & Historical Registry
-* **Real-Time Asynchronous Transport**: WebSockets (`websockets`, FastAPI WebSockets)
-* **Client Application**: Web Operator Console + Android SDK integration ready
-
----
-
-## Getting Started
-
-### Prerequisites
-
-* Python 3.10+
-* FFmpeg (auto-detected from system or `./bin/ffmpeg.exe`)
-
-### 1. Installation
+### 1. Clone & Install Dependencies
 
 ```bash
 git clone https://github.com/Kapilkumararya/veristream.git
@@ -149,60 +135,59 @@ cd veristream/backend
 pip install -r requirements.txt
 ```
 
-### 2. Configuration (Optional)
+### 2. Configure Environment Variables
 
-In `backend/`, create a `.env` file (or copy `.env.example`):
-
+In `backend/.env`:
 ```env
 HOST=0.0.0.0
 PORT=8000
-OPENAI_API_KEY=your_openai_api_key_here
-GOOGLE_FACT_CHECK_API_KEY=your_google_fact_check_key_here
+LLM_API_KEY=your_groq_or_llm_key
+OPENROUTER_API_KEY=your_openrouter_key
+OPENAI_API_KEY=your_openai_key
+GOOGLE_FACT_CHECK_API_KEY=your_google_fact_check_key
 ```
 
-*(Note: VeriStream includes built-in authoritative evidence matrices and simulated fallback services, enabling out-of-the-box execution without mandatory API keys).*
+### 3. Start the FastAPI LangGraph Server
 
-### 3. Run the Server
-
-From the `backend/` folder:
+From `backend/`:
 ```bash
-cd backend
 python -m uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
 ```
 
-Or from the project root:
+Or from project root:
 ```bash
 python -m uvicorn backend.app.main:app --host 0.0.0.0 --port 8000 --reload
 ```
 
-* **Web Console**: [http://localhost:8000/](http://localhost:8000/)
-* **Interactive API Documentation (Swagger UI)**: [http://localhost:8000/docs](http://localhost:8000/docs)
-* **Alternative API Documentation (ReDoc)**: [http://localhost:8000/redoc](http://localhost:8000/redoc)
+* **Web Operator Console**: [http://localhost:8000/](http://localhost:8000/)
+* **Interactive OpenAPI Swagger Docs**: [http://localhost:8000/docs](http://localhost:8000/docs)
+* **ReDoc Documentation**: [http://localhost:8000/redoc](http://localhost:8000/redoc)
 
 ---
 
-## REST & WebSocket API Endpoints
+## API Reference
 
 | Method | Endpoint | Description |
 | :--- | :--- | :--- |
-| `POST` | `/api/verify/text` | Synchronously executes the Agentic AI verification pipeline on a proposition. |
-| `POST` | `/api/verify/async` | Dispatches background verification job; streams thoughts over WebSockets. |
-| `POST` | `/api/verify/media` | Uploads video/audio for FFmpeg preprocessing, Whisper transcription, & verification. |
-| `GET` | `/api/tasks/{task_id}` | Polls the status, agent thoughts, or final verdict of a background task. |
-| `GET` | `/api/tasks` | Lists historical verification tasks. |
-| `GET` | `/api/benchmark/ffmpeg-latency` | Measures live standard vs optimized FFmpeg media latency reduction. |
-| `WS` | `/ws/notifications` | WebSocket channel for real-time user notifications and live agent thoughts. |
-| `GET` | `/health` | System health check and service telemetry. |
+| `POST` | `/api/verify/text` | Executes the 6-node LangGraph investigation workflow on a text claim. |
+| `POST` | `/api/verify/async` | Dispatches asynchronous LangGraph workflow; streams node thoughts via WebSockets. |
+| `POST` | `/api/verify/media` | Ingests video or audio file with FFmpeg preprocessing & Whisper STT. |
+| `POST` | `/api/verify/image` | Ingests visual claims (infographics / screenshots) for LangGraph RAG. |
+| `GET` | `/api/mobile/domains` | Returns investigation domain metadata and sample claims for React Native. |
+| `POST` | `/api/mobile/investigate` | Mobile-optimized endpoint returning citation cards and confidence ratings. |
+| `GET` | `/api/benchmark/ffmpeg-latency` | Benchmarks standard vs optimized FFmpeg media latency reduction. |
+| `WS` | `/ws/notifications` | WebSocket channel for real-time user notifications and live LangGraph thoughts. |
+| `GET` | `/health` | Health check with LangGraph and Qdrant telemetry. |
 
 ---
 
 ## Latency Optimization Metrics
 
-| Pipeline Stage | Standard Media Transcode | VeriStream FFmpeg Low-Latency | Improvement |
+| Pipeline Stage | Standard FFmpeg Transcode | VeriStream Optimized FFmpeg | Reduction |
 | :--- | :--- | :--- | :--- |
-| **Media Probing & Demuxing** | 45.2 ms | 12.8 ms | **-71.7%** |
-| **PCM Resampling & Encoding** | 23.2 ms | 18.5 ms | **-20.2%** |
-| **Total Audio Analysis Latency** | 68.4 ms | 47.8 ms | **~30.1% Reduction** |
+| **Media Demuxing & Header Probe** | 45.2 ms | 12.8 ms | **-71.7%** |
+| **Resampling to 16kHz Mono PCM** | 23.2 ms | 18.5 ms | **-20.2%** |
+| **Total Media Analysis Overhead** | 68.4 ms | 47.8 ms | **~30.1% Reduction** |
 
 ---
 
